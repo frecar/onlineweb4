@@ -1,0 +1,8 @@
+Hei, nå har feedbackmail blitt sendt til alle deltagere på:
+{{ title }}
+
+Dere kan se feedback-resultatene på: 
+{{ link }}
+
+Mvh
+Dotkom

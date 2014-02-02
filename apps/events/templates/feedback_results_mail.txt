@@ -1,0 +1,8 @@
+Hei, siste purremail på feedbacks-kjemaet har blitt sendt til
+alle gjenværende deltagere på {{ title }}
+
+Dere kan se feedback-resultatene på:
+{{ link }}
+
+Mvh
+Dotkom

@@ -42,24 +42,28 @@ class Event(models.Model):
     ingress_short = models.CharField(_(u"kort ingress"), max_length=150)
     ingress = models.TextField(_(u'ingress'))
     description = models.TextField(_(u'beskrivelse'))
-    image = FileBrowseField(_(u"bilde"), 
+    image = FileBrowseField(_(u"bilde"),
         max_length=200, directory=IMAGE_FOLDER,
         extensions=IMAGE_EXTENSIONS, null=True, blank=True)
     event_type = models.SmallIntegerField(_(u'type'), choices=TYPE_CHOICES, null=False)
+    deadline_sendt = models.SmallIntegerField(_(u'mail_sendt_delta'), null=True)
 
+    @property
     def feedback_users(self):
-        users = []
         try:
             if self.attendance_event.attendees.all():
+                users = []
                 for attendee in self.attendance_event.attendees.filter(attended=True):
                     users.append(attendee.user)
-            return users
+                return users
         except AttendanceEvent.DoesNotExist:
-            return users
+            return []
 
+    @property
     def feedback_date(self):
         return self.event_start
 
+    @property
     def feedback_title(self):
         return self.title
 
@@ -116,13 +120,13 @@ class Event(models.Model):
         # Registration closed
         if timezone.now() > self.attendance_event.registration_end:
             response['message'] = _(u'Påmeldingen er ikke lenger åpen.')
-            response['status_code'] = 502 
+            response['status_code'] = 502
             return response
 
         #Room for me on the event?
         if not self.attendance_event.room_on_event:
             response['message'] = _(u"Det er ikke mer plass på dette arrangementet.")
-            response['status_code'] = 503 
+            response['status_code'] = 503
             return response
 
         #
@@ -135,33 +139,33 @@ class Event(models.Model):
         if not response['status']:
             if 'offset' not in response:
                 return response
-        
+
         # Do I have any marks that postpone my registration date?
         active_marks = Mark.active.filter(given_to = user).count()
         if active_marks > 0:
-            # Offset is currently 1 day per mark. 
+            # Offset is currently 1 day per mark.
             mark_offset = timedelta(days=active_marks)
             postponed_registration_start = self.attendance_event.registration_start + mark_offset
             if postponed_registration_start > timezone.now():
-                if 'offset' in response and response['offset'] < postponed_registration_start or 'offset' not in response:    
+                if 'offset' in response and response['offset'] < postponed_registration_start or 'offset' not in response:
                     response['status'] = False
                     response['status_code'] = 401
                     response['message'] = _(u"Din påmelding er utsatt grunnet prikker.")
                     response['offset'] = postponed_registration_start
-            
+
         # Return response if offset was set.
         if 'offset' in response and response['offset'] > timezone.now():
-            return response 
+            return response
 
         #
         # Offset calculations end
         #
 
-        #Registration not open  
+        #Registration not open
         if timezone.now() < self.attendance_event.registration_start:
             response['status'] = False
             response['message'] = _(u'Påmeldingen har ikke åpnet enda.')
-            response['status_code'] = 501 
+            response['status_code'] = 501
             return response
 
         # No objections, set eligible.
@@ -173,7 +177,7 @@ class Event(models.Model):
         return self.attendance_event.attendees.all()[self.attendance_event.max_capacity:]
         return [] if self.number_of_attendees_on_waiting_list is 0 else self.attendance_event.attendees[self.attendance_event.max_capacity:]
 
-    
+
     def what_place_is_user_on_wait_list(self, user):
         if self.attendance_event:
             if self.attendance_event.waitlist:
@@ -211,6 +215,7 @@ http://%s%s
                     send_mail(_(u'Du har fått plass på et arrangement'), email_message,
                               settings.DEFAULT_FROM_EMAIL, [attendee.user.get_email().email])
 
+    @property
     def feedback_mail(self):
         if self.event_type == 1 or self.event_type == 4: #sosialt/utflukt
             return settings.EMAIL_ARRKOM
@@ -223,7 +228,7 @@ http://%s%s
 
     @property
     def slug(self):
-        return slugify(self.title)    
+        return slugify(self.title)
 
     @models.permalink
     def get_absolute_url(self):
@@ -267,7 +272,7 @@ class FieldOfStudyRule(Rule):
     def satisfied(self, user, registration_start):
         """ Override method """
 
-        # If the user has the same FOS as this rule    
+        # If the user has the same FOS as this rule
         if (self.field_of_study == user.field_of_study):
             offset_datetime = self.get_offset_time(registration_start)
             # If the offset is in the past, it means you can attend even with the offset
@@ -294,7 +299,7 @@ class GradeRule(Rule):
     def satisfied(self, user, registration_start):
         """ Override method """
 
-        # If the user has the same FOS as this rule    
+        # If the user has the same FOS as this rule
         if (self.grade == user.year):
             offset_datetime = self.get_offset_time(registration_start)
             # If the offset is in the past, it means you can attend even with the offset
@@ -358,8 +363,8 @@ class RuleBundle(models.Model):
         for rule in self.user_group_rules.all():
             rules.append(unicode(rule))
         return rules
-        
-        
+
+
     def satisfied(self, user, registration_start):
 
         errors = []
@@ -389,13 +394,13 @@ class RuleBundle(models.Model):
                     errors.append(response)
 
         return errors
-        
+
     def __unicode__(self):
         if self.description:
             return self.description
         elif self.get_rule_strings():
             return ", ".join(self.get_rule_strings())
-        else:  
+        else:
             return _(u"Tom rule bundle.")
 
 
@@ -417,7 +422,7 @@ class AttendanceEvent(models.Model):
     max_capacity = models.PositiveIntegerField(_(u'maks-kapasitet'), null=False, blank=False)
     waitlist = models.BooleanField(_(u'venteliste'), default=False)
     registration_start = models.DateTimeField(_(u'registrerings-start'), null=False, blank=False)
-    unattend_deadline = models.DateTimeField(_(u'avmeldings-frist'), null=False, blank=False) 
+    unattend_deadline = models.DateTimeField(_(u'avmeldings-frist'), null=False, blank=False)
     registration_end = models.DateTimeField(_(u'registrerings-slutt'), null=False, blank=False)
 
     #Access rules
@@ -447,19 +452,19 @@ class AttendanceEvent(models.Model):
         # If there are no rule_bundles on this object, all members of Online are allowed.
         if not self.rule_bundles.exists() and user.is_member:
             return {'status': True, 'status_code': 200}
-        
+
         # Put the smallest offset faaar into the future.
         smallest_offset = timezone.now() + timedelta(days=365)
         offset_response = {}
         future_response = {}
-        responses = []    
+        responses = []
         errors = []
 
         # Check all rule bundles
         # If one satisfies, return true, else append to the error list
         for rule_bundle in self.rule_bundles.all():
             responses.extend(rule_bundle.satisfied(user, self.registration_start))
-        
+
         for response in responses:
             if response['status']:
                 return response
@@ -492,7 +497,7 @@ class AttendanceEvent(models.Model):
 class CompanyEvent(models.Model):
     """
     Company relation to AttendanceEvent
-    """    
+    """
     company = models.ForeignKey(Company, verbose_name=_(u'bedrifter'))
     event = models.ForeignKey(Event, verbose_name=_(u'arrangement'), related_name='companies')
 

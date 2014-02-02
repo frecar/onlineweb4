@@ -1,0 +1,21 @@
+Hei, vi ønsker tilbakemelding på {{ title }} {% if startdate %}
+som du var med på den {{ start_date }} {% endif %}
+{% if last_warning %}
+
+I dag innen 23:59 er siste frist for å svare på skjemaet.
+{% else %}
+
+Fristen for å svare på skjemaet er {{deadline}} innen kl 23:59.
+{% endif %}
+
+{{ link }}
+
+{% if gives_mark %}
+Vær oppmerksom på at du får prikk dersom du ikke svarer på disse
+spørsmålene innen fristen.
+{% endif %}
+
+Eventuelle spørsmål sendes til {{ admin_email }}
+
+Mvh
+Linjeforeningen Online

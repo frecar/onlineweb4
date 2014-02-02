@@ -88,40 +88,44 @@ class FeedbackRelation(models.Model):
                              self.feedback.feedback_id])
 
     def can_answer(self, user):
+        """
+        Is the user in conent_object.feedback_users?
+        if the conent_object does not have feedback_user, everyone can aswer.
+        """
         if user in self.answered.all():
             return False
 
         if hasattr(self.content_object, "feedback_users"):
-            if self.content_object.feedback_users():
-                if user not in self.content_object.feedback_users():
-                    return False
-            else:
+            feedback_users = self.content_object.feedback_users
+            if user not in feedback_users:
                 return False
         return True
 
-    def get_slackers(self):
+    @property
+    def lazy_users(self):
+        """
+        People that has not answered the feedback.
+        """
         if hasattr(self.content_object, "feedback_users"):
-            return set(self.content_object.feedback_users()).difference(set(self.answered.all()))
-        else:
-            return False
+            feedback_users = set(self.content_object.feedback_users)
+            answered = set(self.answered.all())
+            return feedback_users.difference(answered)
+        return []
 
-    def get_email(self):
+    @property
+    def admin_mail(self):
         if hasattr(self.content_object, "feedback_mail"):
-            return self.content_object.feedback_mail()
-        else:
-            return "missing mail"
+            return self.content_object.feedback_mail
 
-    def get_title(self):
+    @property
+    def title(self):
         if hasattr(self.content_object, "feedback_title"):
-            return self.content_object.feedback_title()
-        else:
-            return "Missing title"
+            return self.content_object.feedback_title
 
-    def get_start_date(self):
+    @property
+    def start_date(self):
         if hasattr(self.content_object, "feedback_date"):
-            return self.content_object.feedback_date()
-        else:
-            False
+            return self.content_object.feedback_date
 
     def save(self, *args, **kwargs):
         new_fbr = not self.pk
@@ -138,7 +142,7 @@ class Feedback(models.Model):
     feedback_id = models.AutoField(primary_key=True)
     author = models.ForeignKey(User)
     description = models.CharField(_(u'beskrivelse'), max_length=100)
- 
+
     @property
     def ratingquestions(self):
         rating_question = []
@@ -254,7 +258,7 @@ class RegisterToken(models.Model):
     @property
     def is_valid(self):
         return True
-        
+
         #valid_period = datetime.timedelta(days=365)#1 year
         #now = timezone.now()
         #return now < self.created + valid_period
