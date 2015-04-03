@@ -110,7 +110,7 @@ Tilbakemeldingsskjema
                     <form method="POST" action="{% url 'dashboard_feedback_edit_textquestion' feedback.feedback_id pk %}">
                         {% csrf_token %}
                         <div class="col-md-2 pull-right">
-                            <button type="submit" class="btn btn-success">
+                            <button type="submit" class="btn btn-success editquestion">
                                 <i class="fa fa-save fa-lg"></i>
                             </button>
                             <a href="{% url 'dashboard_feedback_delete_textquestion' feedback.feedback_id pk %}" class="btn btn-danger deletebatch">
@@ -138,7 +138,7 @@ Tilbakemeldingsskjema
                     <form method="POST" action="{% url 'dashboard_feedback_edit_ratingquestion' feedback.feedback_id pk %}">
                         {% csrf_token %}
                         <div class="col-md-2 pull-right">
-                            <button type="submit" class="btn btn-success">
+                            <button type="submit" class="btn btn-success editquestion">
                                 <i class="fa fa-save fa-lg"></i>
                             </button>
                             <a href="{% url 'dashboard_feedback_delete_ratingquestion' feedback.feedback_id pk %}" class="btn btn-danger deletebatch">

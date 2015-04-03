@@ -27,13 +27,6 @@ var Feedback = (function ($, tools) {
 
             if (!performSelfCheck()) return
 
-            // $('#inventory-delete-item').on('click', function (e) {
-            //     e.preventDefault()
-            //     if (confirm('Er du sikker på at du vil slette denne varen?')) {
-            //         window.location = this.href
-            //     }
-            // })
-
             $('#feedback-add-textquestion').on('click', function (e) {
                 e.preventDefault()
                 $('#feedback-add-textquestion-form').slideToggle(200)
@@ -55,13 +48,15 @@ var Feedback = (function ($, tools) {
                 $('#feedback-add-ratingquestion-form').hide()
             })
 
-            // $('.deletebatch').on('click', function (e) {
-            //     if (confirm('Er du sikker på at du vil slette denne batchen?')) {
-            //         // STUB
-            //     } else {
-            //         e.preventDefault()
-            //     }
-            // })
+            $('.edit-question').on('click', function (e) {
+                var message = "Vær oppmærksom på at endring av spørsmålet kan endre betydningen av eksisterende svar."
+                message += "\nEr du sikker på at du vil redigere spørsmålet?"
+                if (confirm(message)) {
+                    // STUB
+                } else {
+                    e.preventDefault()
+                }
+            })
         }
 
     }

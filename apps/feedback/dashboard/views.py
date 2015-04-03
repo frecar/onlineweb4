@@ -110,7 +110,7 @@ def new_textquestion(request, feedback_pk):
             textquestion.save()
             messages.success(request, u'Spørsmålet ble lagt til.')
 
-        return redirect(details, feedback_pk=feedback.feedback_id)
+        return redirect(details, feedback_pk=feedback_pk)
 
     raise PermissionDenied
 
@@ -120,9 +120,6 @@ def edit_textquestion(request, feedback_pk, question_pk):
     if not has_access(request):
         raise PermissionDenied
 
-    # Get base context
-
-    feedback = get_object_or_404(Feedback, pk=feedback_pk)
     textquestion = get_object_or_404(TextQuestion, pk=question_pk)
 
     if request.method == 'POST':
@@ -145,15 +142,14 @@ def delete_textquestion(request, feedback_pk, question_pk):
     if not has_access(request):
         raise PermissionDenied
 
-    # Get base context
+    textquestion = get_object_or_404(TextQuestion, pk=question_pk)
 
-    if request.method == 'POST':
-        textquestion = get_object_or_404(TextQuestion, pk=question_pk)
-        #TODO check for dependencies
+    if textquestion.answer.all():
+        messages.error(request, u'Spørsmålet har svar og kan ikke slettes.')
+    else:
         textquestion.delete()
-        return redirect(details, feedback_pk=feedback_pk)        
-
-    raise PermissionDenied
+        messages.success(request, u'Spørsmålet har blitt slettet.')
+    return redirect(details, feedback_pk=feedback_pk)        
 
 
 @login_required
@@ -161,8 +157,6 @@ def delete_textquestion(request, feedback_pk, question_pk):
 def new_ratingquestion(request, feedback_pk):
     if not has_access(request):
         raise PermissionDenied
-
-    # Get base context
 
     feedback = get_object_or_404(Feedback, pk=feedback_pk)
 
@@ -177,7 +171,7 @@ def new_ratingquestion(request, feedback_pk):
             ratingquestion.save()
             messages.success(request, u'Spørsmålet ble lagt til.')
 
-        return redirect(details, feedback_pk=feedback.feedback_id)
+        return redirect(details, feedback_pk=feedback_pk)
 
     raise PermissionDenied
 
@@ -187,9 +181,6 @@ def edit_ratingquestion(request, feedback_pk, question_pk):
     if not has_access(request):
         raise PermissionDenied
 
-    # Get base context
-
-    feedback = get_object_or_404(Feedback, pk=feedback_pk)
     ratingquestion = get_object_or_404(RatingQuestion, pk=question_pk)
 
     if request.method == 'POST':
@@ -212,15 +203,14 @@ def delete_ratingquestion(request, feedback_pk, question_pk):
     if not has_access(request):
         raise PermissionDenied
 
-    # Get base context
+    ratingquestion = get_object_or_404(RatingQuestion, pk=question_pk)
 
-    if request.method == 'POST':
-        ratingquestion = get_object_or_404(RatingQuestion, pk=question_pk)
-        #TODO check for dependencies
+    if ratingquestion.answer.all():
+        messages.error(request, u'Spørsmålet har svar og kan ikke slettes.')
+    else:
         ratingquestion.delete()
-        return redirect(details, feedback_pk=feedback_pk)        
-
-    raise PermissionDenied
+        messages.success(request, u'Spørsmålet har blitt slettet.')
+    return redirect(details, feedback_pk=feedback_pk)      
 
 
 @login_required
@@ -228,8 +218,6 @@ def delete_ratingquestion(request, feedback_pk, question_pk):
 def new_mcquestion(request, feedback_pk):
     if not has_access(request):
         raise PermissionDenied
-
-    # Get base context
 
     feedback = get_object_or_404(Feedback, pk=feedback_pk)
 
@@ -254,10 +242,11 @@ def edit_mcquestion(request, feedback_pk, question_pk):
     if not has_access(request):
         raise PermissionDenied
 
-    # Get base context
-
-    feedback = get_object_or_404(Feedback, pk=feedback_pk)
     mcquestion = get_object_or_404(MultipleChoiceRelation, pk=question_pk)
+
+    if mcquestion.answer.all():
+        messages.error(request, u'Dette spørsmålet har svar og kan ikke redigeres.')
+        return redirect(details, feedback_pk=feedback_pk)
 
     if request.method == 'POST':
         mcquestion_form = MultipleChoiceQuestionForm(request.POST, instance=mcquestion)
@@ -278,12 +267,12 @@ def delete_mcquestion(request, feedback_pk, question_pk):
     if not has_access(request):
         raise PermissionDenied
 
-    # Get base context
+    mcquestion = get_object_or_404(MultipleChoiceRelation, pk=question_pk)     
 
-    if request.method == 'POST':
-        mcquestion = get_object_or_404(MultipleChoiceRelation, pk=question_pk)
-        #TODO check for dependencies
+    if mcquestion.answer.all():
+        messages.error(request, u'Spørsmålet har svar og kan ikke slettes.')
+    else:
         mcquestion.delete()
-        return redirect(details, feedback_pk=feedback_pk)        
+        messages.success(request, u'Spørsmålet har blitt slettet.')
 
-    raise PermissionDenied
+    return redirect(details, feedback_pk=feedback_pk)   
