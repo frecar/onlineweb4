@@ -1,0 +1,186 @@
+# -*- encoding: utf-8 -*-
+
+from datetime import datetime
+
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
+from django.shortcuts import render, get_object_or_404, redirect
+
+from guardian.decorators import permission_required
+
+from apps.dashboard.tools import has_access, get_base_context
+from apps.feedback.models import Feedback, TextQuestion
+from apps.feedback.dashboard.forms import FeedbackForm, TextQuestionForm
+
+
+@login_required
+@permission_required('feedback.view_item', return_403=True)
+def index(request):
+
+    # Generic check to see if user has access to dashboard. (In Komiteer or superuser)
+    if not has_access(request):
+        raise PermissionDenied
+
+    # Create the base context needed for the sidebar
+    context = get_base_context(request)
+
+    context['feedbacks'] = Feedback.objects.all()
+
+    return render(request, 'feedback/dashboard/feedbackschemas.html', context)
+
+@login_required
+@permission_required('feedback.add_feedback', return_403=True)
+def new(request):
+
+    if not has_access(request):
+        raise PermissionDenied
+
+    # Get base context
+    context = get_base_context(request)
+
+    feedback = Feedback.objects.create(author=request.user)
+
+    return redirect(details, feedback_pk=feedback.feedback_id)
+
+
+@login_required
+@permission_required('feedback.view_item', return_403=True)
+def details(request, feedback_pk):
+    # Generic check to see if user has access to dashboard. (In Komiteer or superuser)
+    if not has_access(request):
+        raise PermissionDenied
+
+    # Create the base context needed for the sidebar
+    context = get_base_context(request)
+
+    context['feedback'] = get_object_or_404(Feedback, pk=feedback_pk)
+
+    textquestions =  TextQuestion.objects.filter(feedback=context['feedback'])
+    context['textquestions'] = [(textquestion.id, TextQuestionForm(instance=textquestion)) for textquestion in textquestions]
+
+    if request.method == 'POST':
+        # if 'feedback.change_item' not in context['user_permissions']:
+        #     raise PermissionDenied
+
+        feedback_form = FeedbackForm(request.POST, instance=context['feedback'])
+        print request.POST
+        if not feedback_form.is_valid():
+            messages.error(request, u'Noen av de påkrevde feltene inneholder feil.')
+        else:
+            feedback_form.save()
+            messages.success(request, u'Tilbakemeldingsskjemaet ble oppdatert')
+        context['feedback_form'] = feedback_form
+    else:
+        context['feedback_form'] = FeedbackForm(instance=context['feedback'])
+
+    context['textquestion_form'] = TextQuestionForm()
+
+    return render(request, 'feedback/dashboard/details.html', context)
+
+
+
+@login_required
+@permission_required('feedback.add_question', return_403=True)
+def new_textquestion(request, feedback_pk):
+    if not has_access(request):
+        raise PermissionDenied
+
+    # Get base context
+
+    feedback = get_object_or_404(Feedback, pk=feedback_pk)
+
+    if request.method == 'POST':
+        textquestion_form = TextQuestionForm(request.POST)
+        textquestion = textquestion_form.save(commit=False)
+        textquestion.feedback = feedback
+
+        if not textquestion_form.is_valid():
+            messages.error(request, u'Noen av de påkrevde feltene inneholder feil.')
+        else:
+            textquestion.save()
+            messages.success(request, u'Spørsmålet ble lagt til.')
+
+        return redirect(details, feedback_pk=feedback.feedback_id)
+
+    raise PermissionDenied
+
+@login_required
+@permission_required('feedback.edit_question', return_403=True)
+def edit_textquestion(request, feedback_pk, question_pk):
+    if not has_access(request):
+        raise PermissionDenied
+
+    # Get base context
+
+    feedback = get_object_or_404(Feedback, pk=feedback_pk)
+    textquestion = get_object_or_404(TextQuestion, pk=question_pk)
+
+    if request.method == 'POST':
+        textquestion_form = TextQuestionForm(request.POST, instance=textquestion)
+
+        if not textquestion_form.is_valid():
+            messages.error(request, u'Noen av de påkrevde feltene inneholder feil.')
+        else:
+            textquestion.save()
+            messages.success(request, u'Spørsmålet ble endret.')
+
+        return redirect(details, feedback_pk=feedback_pk)
+
+    raise PermissionDenied
+
+
+@login_required
+@permission_required('feedback.delete_question', return_403=True)
+def delete_textquestion(request, feedback_pk, question_pk):
+    if not has_access(request):
+        raise PermissionDenied
+
+    # Get base context
+
+    if request.method == 'POST':
+        textquestion = get_object_or_404(TextQuestion, pk=question_pk)
+        #TODO check for dependencies
+        textquestion.delete()
+        return redirect(details, feedback_pk=feedback_pk)        
+
+    raise PermissionDenied
+
+
+
+
+
+
+
+
+
+
+
+@login_required
+@permission_required('feedback.add_item', return_403=True)
+def newOld(request):
+
+    if not has_access(request):
+        raise PermissionDenied
+
+    # Get base context
+    context = get_base_context(request)
+
+    if request.method == 'POST':
+        feedback_form = FeedbackForm(request.POST)
+
+        if not feedback_form.is_valid():
+            messages.error(request, u'Noen av de påkrevde feltene inneholder feil.')
+        else:
+            feedback_form.save()
+            messages.success(request, u'Tilbakemeldingsskjemaet ble opprettet')
+            return redirect(index)
+
+        context['form'] = feedback_form
+
+    else:
+        context['form'] = FeedbackForm()
+
+    context['textquestion_form'] = TextQuestionForm()
+
+    return render(request, 'feedback/dashboard/new.html', context)

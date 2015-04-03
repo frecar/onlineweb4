@@ -1,0 +1,24 @@
+{% load field_type_tag %}
+{% load addcss %}
+
+{% for field in form %}
+    <div class="col-md-10">
+        <div class="form-group {% if field.errors %}has-error{% endif %}">
+            <div class="input-group">
+                {% if field.field.widget|get_type == "CheckboxInput" %}
+                    <div class="checkbox">
+                        <label>
+                            {{ field }}
+                            {{ field.label }}
+                        </label>
+                        <p class="help-text">{{ field.help_text }}</p>
+                    </div>
+                {% else %}
+                    <span class="input-group-addon">{{ field.label }}</span>
+                    {{ field|addclass:"form-control" }}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {{ field.type }}
+{% endfor %}
