@@ -57,6 +57,15 @@ var Feedback = (function ($, tools) {
                     e.preventDefault()
                 }
             })
+
+            $('.feedback-delete').on('click', function (e) {
+                var message = "Er du sikker på at du vil slette skjemaet?"
+                if (confirm(message)) {
+                    // STUB
+                } else {
+                    e.preventDefault()
+                }
+            })
         }
 
     }

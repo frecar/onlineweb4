@@ -45,7 +45,7 @@ Tilbakemeldingsskjema
             <div class="col-md-12">
                 <button type="submit" class="btn btn-success">
                     <i class="fa fa-save fa-lg"></i> Legg til</i>
-                </button>
+                </button>            
             </div>
         </form>   
     </div>
@@ -90,11 +90,13 @@ Tilbakemeldingsskjema
                 <button type="submit" class="btn btn-success">
                     <i class="fa fa-save fa-lg"></i>
                 </button>
+                <a href="{% url 'dashboard_feedback_delete' feedback.feedback_id %}" class="btn btn-danger feedback-delete"><i class="fa fa-times fa-lg"></i></a>    
             </div>
             {% display_form feedback_form %}
         </form>
     </div>
 </div>
+{% if textquestions %}
 <div class="row">
     <div class="col-md-12">
         <div class="panel panel-default">
@@ -113,7 +115,7 @@ Tilbakemeldingsskjema
                             <button type="submit" class="btn btn-success editquestion">
                                 <i class="fa fa-save fa-lg"></i>
                             </button>
-                            <a href="{% url 'dashboard_feedback_delete_textquestion' feedback.feedback_id pk %}" class="btn btn-danger deletebatch">
+                            <a href="{% url 'dashboard_feedback_delete_textquestion' feedback.feedback_id pk %}" class="btn btn-danger">
                             <i class="fa fa-times fa-lg"></i></a>
                         </div>
                         {% display_form form %}
@@ -123,6 +125,8 @@ Tilbakemeldingsskjema
         </div>
     </div>
 </div>
+{% endif %}
+{% if ratingquestions %}
 <div class="row">
     <div class="col-md-12">
         <div class="panel panel-default">
@@ -141,7 +145,7 @@ Tilbakemeldingsskjema
                             <button type="submit" class="btn btn-success editquestion">
                                 <i class="fa fa-save fa-lg"></i>
                             </button>
-                            <a href="{% url 'dashboard_feedback_delete_ratingquestion' feedback.feedback_id pk %}" class="btn btn-danger deletebatch">
+                            <a href="{% url 'dashboard_feedback_delete_ratingquestion' feedback.feedback_id pk %}" class="btn btn-danger">
                             <i class="fa fa-times fa-lg"></i></a>
                         </div>
                         {% display_form form %}
@@ -151,6 +155,8 @@ Tilbakemeldingsskjema
         </div>
     </div>
 </div>
+{% endif %}
+{% if mcquestions %}
 <div class="row">
     <div class="col-md-12">
         <div class="panel panel-default">
@@ -169,7 +175,7 @@ Tilbakemeldingsskjema
                             <button type="submit" class="btn btn-success">
                                 <i class="fa fa-save fa-lg"></i>
                             </button>
-                            <a href="{% url 'dashboard_feedback_delete_mcquestion' feedback.feedback_id pk %}" class="btn btn-danger deletebatch">
+                            <a href="{% url 'dashboard_feedback_delete_mcquestion' feedback.feedback_id pk %}" class="btn btn-danger">
                             <i class="fa fa-times fa-lg"></i></a>
                         </div>
                         {% display_form form %}
@@ -179,5 +185,6 @@ Tilbakemeldingsskjema
         </div>
     </div>
 </div>
+{% endif %}
 
 {% endblock content %}

@@ -37,12 +37,26 @@ def new(request):
     if not has_access(request):
         raise PermissionDenied
 
-    # Get base context
-    context = get_base_context(request)
-
     feedback = Feedback.objects.create(author=request.user)
 
     return redirect(details, feedback_pk=feedback.feedback_id)
+
+@login_required
+@permission_required('feedback.delete_feedback', return_403=True)
+def delete(request, feedback_pk):
+
+    if not has_access(request):
+        raise PermissionDenied
+
+    feedback = get_object_or_404(Feedback, pk=feedback_pk)
+
+    if feedback.feedbackrelation_set.all():
+        messages.error(request, "Dette skjemaet har vært i bruk og kan ikke slettes.")
+        return redirect(details, feedback_pk=feedback_pk)
+    else:
+        feedback.delete()
+        messages.success(request, "Skjemaet har blitt slettet.")
+        return redirect(index)
 
 
 @login_required
