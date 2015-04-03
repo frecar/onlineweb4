@@ -249,7 +249,8 @@ reversion.register(FieldOfStudyAnswer)
 class TextQuestion(models.Model):
     feedback = models.ForeignKey(
         Feedback,
-        related_name='text_questions')
+        related_name='text_questions',
+        blank=True)
 
     order = models.SmallIntegerField(_(u'Rekkefølge'), default=10)
     label = models.CharField(_(u'Spørsmål'), blank=False, max_length=256)
@@ -299,7 +300,8 @@ RATING_CHOICES = [(k, str(k)) for k in range(1, 7)]  # 1 to 6
 class RatingQuestion(models.Model):
     feedback = models.ForeignKey(
         Feedback,
-        related_name='rating_questions')
+        related_name='rating_questions',
+        blank=True)
 
     order = models.SmallIntegerField(_(u'Rekkefølge'), default=20)
     label = models.CharField(_(u'Spørsmål'), blank=False, max_length=256)
@@ -365,10 +367,10 @@ reversion.register(MultipleChoiceQuestion)
 
 
 class MultipleChoiceRelation(models.Model):
-    multiple_choice_relation = models.ForeignKey(MultipleChoiceQuestion)
+    multiple_choice_relation = models.ForeignKey(MultipleChoiceQuestion, verbose_name=_(u'Spørsmål'))
     order = models.SmallIntegerField(_(u'Rekkefølge'), default=30)
     display = models.BooleanField(_(u'Vis til bedrift'), default=True)
-    feedback = models.ForeignKey(Feedback, related_name='multiple_choice_questions')
+    feedback = models.ForeignKey(Feedback, related_name='multiple_choice_questions', blank=True)
 
     def __unicode__(self):
         return self.multiple_choice_relation.label

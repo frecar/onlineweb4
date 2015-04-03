@@ -36,8 +36,23 @@ var Feedback = (function ($, tools) {
 
             $('#feedback-add-textquestion').on('click', function (e) {
                 e.preventDefault()
-                console.log("Pressed");
                 $('#feedback-add-textquestion-form').slideToggle(200)
+                $('#feedback-add-ratingquestion-form').hide()
+                $('#feedback-add-mcquestion-form').hide()
+            })
+
+            $('#feedback-add-ratingquestion').on('click', function (e) {
+                e.preventDefault()
+                $('#feedback-add-ratingquestion-form').slideToggle(200)
+                $('#feedback-add-textquestion-form').hide()
+                $('#feedback-add-mcquestion-form').hide()
+            })
+
+            $('#feedback-add-mcquestion').on('click', function (e) {
+                e.preventDefault()
+                $('#feedback-add-mcquestion-form').slideToggle(200)
+                $('#feedback-add-textquestion-form').hide()
+                $('#feedback-add-ratingquestion-form').hide()
             })
 
             // $('.deletebatch').on('click', function (e) {

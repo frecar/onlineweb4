@@ -10,8 +10,9 @@ from django.shortcuts import render, get_object_or_404, redirect
 from guardian.decorators import permission_required
 
 from apps.dashboard.tools import has_access, get_base_context
-from apps.feedback.models import Feedback, TextQuestion
+from apps.feedback.models import Feedback, TextQuestion, RatingQuestion, MultipleChoiceRelation
 from apps.feedback.dashboard.forms import FeedbackForm, TextQuestionForm
+from apps.feedback.dashboard.forms import RatingQuestionForm, MultipleChoiceQuestionForm
 
 
 @login_required
@@ -59,6 +60,12 @@ def details(request, feedback_pk):
     textquestions =  TextQuestion.objects.filter(feedback=context['feedback'])
     context['textquestions'] = [(textquestion.id, TextQuestionForm(instance=textquestion)) for textquestion in textquestions]
 
+    ratingquestions =  RatingQuestion.objects.filter(feedback=context['feedback'])
+    context['ratingquestions'] = [(ratingquestion.id, RatingQuestionForm(instance=ratingquestion)) for ratingquestion in ratingquestions]
+
+    mcquestions =  MultipleChoiceRelation.objects.filter(feedback=context['feedback'])
+    context['mcquestions'] = [(mcquestion.id, MultipleChoiceQuestionForm(instance=mcquestion)) for mcquestion in mcquestions]
+
     if request.method == 'POST':
         # if 'feedback.change_item' not in context['user_permissions']:
         #     raise PermissionDenied
@@ -75,6 +82,8 @@ def details(request, feedback_pk):
         context['feedback_form'] = FeedbackForm(instance=context['feedback'])
 
     context['textquestion_form'] = TextQuestionForm()
+    context['ratingquestion_form'] = RatingQuestionForm()
+    context['mcquestion_form'] = MultipleChoiceQuestionForm()
 
     return render(request, 'feedback/dashboard/details.html', context)
 
@@ -92,12 +101,12 @@ def new_textquestion(request, feedback_pk):
 
     if request.method == 'POST':
         textquestion_form = TextQuestionForm(request.POST)
-        textquestion = textquestion_form.save(commit=False)
-        textquestion.feedback = feedback
 
         if not textquestion_form.is_valid():
             messages.error(request, u'Noen av de påkrevde feltene inneholder feil.')
         else:
+            textquestion = textquestion_form.save(commit=False)
+            textquestion.feedback = feedback
             textquestion.save()
             messages.success(request, u'Spørsmålet ble lagt til.')
 
@@ -147,40 +156,134 @@ def delete_textquestion(request, feedback_pk, question_pk):
     raise PermissionDenied
 
 
-
-
-
-
-
-
-
-
-
 @login_required
-@permission_required('feedback.add_item', return_403=True)
-def newOld(request):
-
+@permission_required('feedback.add_question', return_403=True)
+def new_ratingquestion(request, feedback_pk):
     if not has_access(request):
         raise PermissionDenied
 
     # Get base context
-    context = get_base_context(request)
+
+    feedback = get_object_or_404(Feedback, pk=feedback_pk)
 
     if request.method == 'POST':
-        feedback_form = FeedbackForm(request.POST)
+        ratingquestion_form = RatingQuestionForm(request.POST)
 
-        if not feedback_form.is_valid():
+        if not ratingquestion_form.is_valid():
             messages.error(request, u'Noen av de påkrevde feltene inneholder feil.')
         else:
-            feedback_form.save()
-            messages.success(request, u'Tilbakemeldingsskjemaet ble opprettet')
-            return redirect(index)
+            ratingquestion = ratingquestion_form.save(commit=False)
+            ratingquestion.feedback = feedback
+            ratingquestion.save()
+            messages.success(request, u'Spørsmålet ble lagt til.')
 
-        context['form'] = feedback_form
+        return redirect(details, feedback_pk=feedback.feedback_id)
 
-    else:
-        context['form'] = FeedbackForm()
+    raise PermissionDenied
 
-    context['textquestion_form'] = TextQuestionForm()
+@login_required
+@permission_required('feedback.edit_question', return_403=True)
+def edit_ratingquestion(request, feedback_pk, question_pk):
+    if not has_access(request):
+        raise PermissionDenied
 
-    return render(request, 'feedback/dashboard/new.html', context)
+    # Get base context
+
+    feedback = get_object_or_404(Feedback, pk=feedback_pk)
+    ratingquestion = get_object_or_404(RatingQuestion, pk=question_pk)
+
+    if request.method == 'POST':
+        ratingquestion_form = RatingQuestionForm(request.POST, instance=ratingquestion)
+
+        if not ratingquestion_form.is_valid():
+            messages.error(request, u'Noen av de påkrevde feltene inneholder feil.')
+        else:
+            ratingquestion.save()
+            messages.success(request, u'Spørsmålet ble endret.')
+
+        return redirect(details, feedback_pk=feedback_pk)
+
+    raise PermissionDenied
+
+
+@login_required
+@permission_required('feedback.delete_question', return_403=True)
+def delete_ratingquestion(request, feedback_pk, question_pk):
+    if not has_access(request):
+        raise PermissionDenied
+
+    # Get base context
+
+    if request.method == 'POST':
+        ratingquestion = get_object_or_404(RatingQuestion, pk=question_pk)
+        #TODO check for dependencies
+        ratingquestion.delete()
+        return redirect(details, feedback_pk=feedback_pk)        
+
+    raise PermissionDenied
+
+
+@login_required
+@permission_required('feedback.add_question', return_403=True)
+def new_mcquestion(request, feedback_pk):
+    if not has_access(request):
+        raise PermissionDenied
+
+    # Get base context
+
+    feedback = get_object_or_404(Feedback, pk=feedback_pk)
+
+    if request.method == 'POST':
+        mcquestion_form = MultipleChoiceQuestionForm(request.POST)
+
+        if not mcquestion_form.is_valid():
+            messages.error(request, u'Noen av de påkrevde feltene inneholder feil.')
+        else:
+            mcquestion = mcquestion_form.save(commit=False)
+            mcquestion.feedback = feedback           
+            mcquestion.save()
+            messages.success(request, u'Spørsmålet ble lagt til.')
+
+        return redirect(details, feedback_pk=feedback.feedback_id)
+
+    raise PermissionDenied
+
+@login_required
+@permission_required('feedback.edit_question', return_403=True)
+def edit_mcquestion(request, feedback_pk, question_pk):
+    if not has_access(request):
+        raise PermissionDenied
+
+    # Get base context
+
+    feedback = get_object_or_404(Feedback, pk=feedback_pk)
+    mcquestion = get_object_or_404(MultipleChoiceRelation, pk=question_pk)
+
+    if request.method == 'POST':
+        mcquestion_form = MultipleChoiceQuestionForm(request.POST, instance=mcquestion)
+
+        if not mcquestion_form.is_valid():
+            messages.error(request, u'Noen av de påkrevde feltene inneholder feil.')
+        else:
+            mcquestion.save()
+            messages.success(request, u'Spørsmålet ble endret.')
+
+        return redirect(details, feedback_pk=feedback_pk)
+
+    raise PermissionDenied
+
+@login_required
+@permission_required('feedback.delete_question', return_403=True)
+def delete_mcquestion(request, feedback_pk, question_pk):
+    if not has_access(request):
+        raise PermissionDenied
+
+    # Get base context
+
+    if request.method == 'POST':
+        mcquestion = get_object_or_404(MultipleChoiceRelation, pk=question_pk)
+        #TODO check for dependencies
+        mcquestion.delete()
+        return redirect(details, feedback_pk=feedback_pk)        
+
+    raise PermissionDenied

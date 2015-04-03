@@ -34,12 +34,38 @@ Tilbakemeldingsskjema
 <div class="row">
     <div class ="col-md-12">
         <a href="#" id="feedback-add-textquestion" class="btn btn-primary"><i class="fa fa-plus"></i> Legg til tekstspørsmål</a>
+        <a href="#" id="feedback-add-ratingquestion" class="btn btn-primary"><i class="fa fa-plus"></i> Legg til rating spørsmål</a>
+        <a href="#" id="feedback-add-mcquestion" class="btn btn-primary"><i class="fa fa-plus"></i> Legg til rating spørsmål</a>
     </div>
     <div class="col-md-12" style="display:none" id="feedback-add-textquestion-form">
         <hr />
         <form method="POST" action="{% url 'dashboard_feedback_new_textquestion' feedback.feedback_id %}">
             {% csrf_token %}
             {% display_form textquestion_form %}
+            <div class="col-md-12">
+                <button type="submit" class="btn btn-success">
+                    <i class="fa fa-save fa-lg"></i> Legg til</i>
+                </button>
+            </div>
+        </form>   
+    </div>
+    <div class="col-md-12" style="display:none" id="feedback-add-ratingquestion-form">
+        <hr />
+        <form method="POST" action="{% url 'dashboard_feedback_new_ratingquestion' feedback.feedback_id %}">
+            {% csrf_token %}
+            {% display_form ratingquestion_form %}
+            <div class="col-md-12">
+                <button type="submit" class="btn btn-success">
+                    <i class="fa fa-save fa-lg"></i> Legg til</i>
+                </button>
+            </div>
+        </form>   
+    </div>
+    <div class="col-md-12" style="display:none" id="feedback-add-mcquestion-form">
+        <hr />
+        <form method="POST" action="{% url 'dashboard_feedback_new_mcquestion' feedback.feedback_id %}">
+            {% csrf_token %}
+            {% display_form mcquestion_form %}
             <div class="col-md-12">
                 <button type="submit" class="btn btn-success">
                     <i class="fa fa-save fa-lg"></i> Legg til</i>
@@ -88,6 +114,62 @@ Tilbakemeldingsskjema
                                 <i class="fa fa-save fa-lg"></i>
                             </button>
                             <a href="{% url 'dashboard_feedback_delete_textquestion' feedback.feedback_id pk %}" class="btn btn-danger deletebatch">
+                            <i class="fa fa-times fa-lg"></i></a>
+                        </div>
+                        {% display_form form %}
+                    </form>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Ratingsprøsmål</h3>
+            </div>
+        </div>
+    </div>
+    <div class="panel-body">
+        <div class="col-md-12">
+            {% for pk, form in ratingquestions %}
+                <div class="row row-space well">
+                    <form method="POST" action="{% url 'dashboard_feedback_edit_ratingquestion' feedback.feedback_id pk %}">
+                        {% csrf_token %}
+                        <div class="col-md-2 pull-right">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fa fa-save fa-lg"></i>
+                            </button>
+                            <a href="{% url 'dashboard_feedback_delete_ratingquestion' feedback.feedback_id pk %}" class="btn btn-danger deletebatch">
+                            <i class="fa fa-times fa-lg"></i></a>
+                        </div>
+                        {% display_form form %}
+                    </form>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Flervalgsprøsmål</h3>
+            </div>
+        </div>
+    </div>
+    <div class="panel-body">
+        <div class="col-md-12">
+            {% for pk, form in mcquestions %}
+                <div class="row row-space well">
+                    <form method="POST" action="{% url 'dashboard_feedback_edit_mcquestion' feedback.feedback_id pk %}">
+                        {% csrf_token %}
+                        <div class="col-md-2 pull-right">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fa fa-save fa-lg"></i>
+                            </button>
+                            <a href="{% url 'dashboard_feedback_delete_mcquestion' feedback.feedback_id pk %}" class="btn btn-danger deletebatch">
                             <i class="fa fa-times fa-lg"></i></a>
                         </div>
                         {% display_form form %}
