@@ -10,9 +10,10 @@ from django.shortcuts import render, get_object_or_404, redirect
 from guardian.decorators import permission_required
 
 from apps.dashboard.tools import has_access, get_base_context
-from apps.feedback.models import Feedback, TextQuestion, RatingQuestion, MultipleChoiceRelation
-from apps.feedback.dashboard.forms import FeedbackForm, TextQuestionForm
-from apps.feedback.dashboard.forms import RatingQuestionForm, MultipleChoiceQuestionForm
+from apps.feedback.models import Feedback, TextQuestion, RatingQuestion, Choice
+from apps.feedback.models import MultipleChoiceRelation, MultipleChoiceQuestion
+from apps.feedback.dashboard.forms import FeedbackForm, TextQuestionForm, MultipleChoiceQuestionForm
+from apps.feedback.dashboard.forms import RatingQuestionForm, MultipleChoiceRelationForm, ChoiceForm
 
 
 @login_required
@@ -31,7 +32,7 @@ def index(request):
     return render(request, 'feedback/dashboard/feedbackschemas.html', context)
 
 @login_required
-@permission_required('feedback.add_feedback', return_403=True)
+@permission_required('feedback.add', return_403=True)
 def new(request):
 
     if not has_access(request):
@@ -42,7 +43,7 @@ def new(request):
     return redirect(details, feedback_pk=feedback.feedback_id)
 
 @login_required
-@permission_required('feedback.delete_feedback', return_403=True)
+@permission_required('feedback.delete', return_403=True)
 def delete(request, feedback_pk):
 
     if not has_access(request):
@@ -60,7 +61,7 @@ def delete(request, feedback_pk):
 
 
 @login_required
-@permission_required('feedback.view_item', return_403=True)
+@permission_required('feedback.view', return_403=True)
 def details(request, feedback_pk):
     # Generic check to see if user has access to dashboard. (In Komiteer or superuser)
     if not has_access(request):
@@ -78,7 +79,7 @@ def details(request, feedback_pk):
     context['ratingquestions'] = [(ratingquestion.id, RatingQuestionForm(instance=ratingquestion)) for ratingquestion in ratingquestions]
 
     mcquestions =  MultipleChoiceRelation.objects.filter(feedback=context['feedback'])
-    context['mcquestions'] = [(mcquestion.id, MultipleChoiceQuestionForm(instance=mcquestion)) for mcquestion in mcquestions]
+    context['mcquestions'] = [(mcquestion.id, MultipleChoiceRelationForm(instance=mcquestion)) for mcquestion in mcquestions]
 
     if request.method == 'POST':
         # if 'feedback.change_item' not in context['user_permissions']:
@@ -97,7 +98,7 @@ def details(request, feedback_pk):
 
     context['textquestion_form'] = TextQuestionForm()
     context['ratingquestion_form'] = RatingQuestionForm()
-    context['mcquestion_form'] = MultipleChoiceQuestionForm()
+    context['mcquestion_form'] = MultipleChoiceRelationForm()
 
     return render(request, 'feedback/dashboard/details.html', context)
 
@@ -236,7 +237,7 @@ def new_mcquestion(request, feedback_pk):
     feedback = get_object_or_404(Feedback, pk=feedback_pk)
 
     if request.method == 'POST':
-        mcquestion_form = MultipleChoiceQuestionForm(request.POST)
+        mcquestion_form = MultipleChoiceRelationForm(request.POST)
 
         if not mcquestion_form.is_valid():
             messages.error(request, u'Noen av de påkrevde feltene inneholder feil.')
@@ -263,7 +264,7 @@ def edit_mcquestion(request, feedback_pk, question_pk):
         return redirect(details, feedback_pk=feedback_pk)
 
     if request.method == 'POST':
-        mcquestion_form = MultipleChoiceQuestionForm(request.POST, instance=mcquestion)
+        mcquestion_form = MultipleChoiceRelationForm(request.POST, instance=mcquestion)
 
         if not mcquestion_form.is_valid():
             messages.error(request, u'Noen av de påkrevde feltene inneholder feil.')
@@ -290,3 +291,68 @@ def delete_mcquestion(request, feedback_pk, question_pk):
         messages.success(request, u'Spørsmålet har blitt slettet.')
 
     return redirect(details, feedback_pk=feedback_pk)   
+
+
+
+# Multiple MultipleChoice
+
+@login_required
+@permission_required('feedback.multiplechoice', return_403=True)
+def multiplechoice_index(request):
+    if not has_access(request):
+        raise PermissionDenied
+
+    # Create the base context needed for the sidebar
+    context = get_base_context(request)
+
+    context['multiple_choices'] = MultipleChoiceQuestion.objects.all()
+
+    if request.method == 'POST':
+        multiple_choices_form = MultipleChoiceQuestionForm(request.POST)
+
+        if not multiple_choices_form.is_valid():
+            messages.error(request, u'Noen av de påkrevde feltene inneholder feil.')
+        else:
+            multiple_choices_form.save()
+            messages.success(request, u'Spørsmålet ble opprettet')
+            return redirect(multiplechoice_index)
+
+        context['form'] = multiple_choices_form
+
+    else:
+        context['form'] = MultipleChoiceQuestionForm()
+
+    return render(request, 'feedback/dashboard/multiplechoice_index.html', context)
+
+
+@login_required
+@permission_required('feedback.multiplechoice', return_403=True)
+def multiplechoice_details(request, multiple_choice_pk):
+
+    if not has_access(request):
+        raise PermissionDenied
+
+    # Get base context
+    context = get_base_context(request)
+
+    context['multiple_choice'] = MultipleChoiceQuestion.objects.get(pk=multiple_choice_pk)
+
+    choices =  Choice.objects.filter(question=context['multiple_choice'])
+    context['choice_forms'] = [(choice.id, ChoiceForm(instance=choice)) for choice in choices]
+
+    if request.method == 'POST':
+        inventory_form = ItemForm(request.POST)
+
+        if not inventory_form.is_valid():
+            messages.error(request, u'Noen av de påkrevde feltene inneholder feil.')
+        else:
+            inventory_form.save()
+            messages.success(request, u'Varen ble opprettet')
+            return redirect(index)
+
+        context['form'] = inventory_form
+
+    else:
+        context['form'] = ItemForm()
+
+    return render(request, 'inventory/dashboard/new.html', context)

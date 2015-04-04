@@ -16,4 +16,7 @@ urlpatterns = patterns('apps.feedback.dashboard.views',
     url(r'^new/mcquestion/(?P<feedback_pk>\d+)$', 'new_mcquestion', name='dashboard_feedback_new_mcquestion'),
     url(r'^edit/mcquestion/(?P<feedback_pk>\d+)/(?P<question_pk>\d+)$', 'edit_mcquestion', name='dashboard_feedback_edit_mcquestion'),
     url(r'^delete/mcquestion/(?P<feedback_pk>\d+)/(?P<question_pk>\d+)$', 'delete_mcquestion', name='dashboard_feedback_delete_mcquestion'),
+
+    url(r'^multiplechoice/$', 'multiplechoice_index', name='dashboard_feedback_multiplechoice_index'),
+    url(r'^multiplechoice/(?P<multiple_choice_pk>\d+)/$', 'multiplechoice_details', name='dashboard_feedback_multiplechoice_details'),
 )

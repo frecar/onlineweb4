@@ -1,0 +1,74 @@
+{% extends "dashboard_base.html" %}
+{% load compress %}
+{% load feedback_form_tag %}
+
+{% block title %}
+Flervalgsspørsmål - Online Dashboard
+{% endblock title %}
+
+{% block styles %}
+    {{ block.super }}
+    {% compress css %}
+    {% endcompress %}
+{% endblock %}
+
+{% block js %}
+    {{ block.super }}
+    {% compress js %}
+    <script src="{{ STATIC_URL }}js/dashboard/feedback.js"></script>
+    {% endcompress %}
+{% endblock js %}
+
+{% block page-header %}
+Flervalgsspørsmål
+{% endblock %}
+
+{% block breadcrumbs %}
+    <li>Flervalgsspørsmål</li> 
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <a id="feedback-new-multiple-choice" href="#" class="btn btn-primary"><i class="fa fa-plus"></i> Nytt Flervalgsspørsmål</a>
+    </div>
+    <div class="col-md-12" style="display:none" id="feedback-new-multiple-choice-form">
+        <hr />
+        <form method="POST" action="">
+            {% csrf_token %}
+            {% display_form form %}
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-success">
+                    <i class="fa fa-save fa-lg"></i> Legg til</i>
+                </button>            
+            </div>
+        </form>   
+    </div>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Flervalgsspørsmål</h3>
+            </div>
+            <div class="panel-body">
+                <table class="table table-striped table-condensed tablesorter" id="feedback_list">
+                    <thead>
+                        <tr>
+                            <th>Spørsmål</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for mc in multiple_choices %}
+                        <tr>
+                            <td><a href="/dashboard/feedback/multiplechoice/{{ mc.id }}/">{{ mc.label }}</a></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

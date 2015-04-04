@@ -66,10 +66,13 @@ var Feedback = (function ($, tools) {
                     e.preventDefault()
                 }
             })
+
+            $('#feedback-new-multiple-choice').on('click', function (e) {
+                e.preventDefault()
+                $('#feedback-new-multiple-choice-form').slideToggle(200)
+            })
         }
-
     }
-
 })(jQuery, Dashboard.tools)
 
 $(document).ready(function () {
