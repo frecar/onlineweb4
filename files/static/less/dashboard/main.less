@@ -9,6 +9,9 @@
 @orange: #ee7810;
 @blue: #004b80;
 
+@block-content-background: #fafafa;
+@block-header-border: #ddd;
+@block-header-background: #f5f5f5;
 
 /* Generics */
 
@@ -29,11 +32,9 @@ ul {
     padding: 0px;
 }
 
-
 .center-text {
     text-align: center;
 }
-
 
 /* Color classes */
 
@@ -118,8 +119,6 @@ nav#dashboard_main_nav {
 
 .content-header {
 
-    
-
     background-color: @header-bg;
     z-index: 10;
     h2 {
@@ -127,6 +126,41 @@ nav#dashboard_main_nav {
         padding-left: 15px;
         padding-top: 15px;
         margin-bottom: 15px;
+    }
+}
+
+.block {
+
+    margin-bottom: 20px;
+    width: 100%;
+    background: @block-content-background;
+
+    .block-header {
+        
+        padding: 10px;
+
+        background: @block-header-background;
+        border-bottom: 1px solid @block-header-border;
+
+        .block-title {
+            color: #333;
+            font-size: 15px;
+            line-height: 15px;
+            margin: 0px;
+        }
+    }
+
+    .block-content {
+        padding: 10px;
+    }
+}
+
+.block-orange {
+    background: lighten(@orange, 46%);
+    
+    .block-header {
+        background: lighten(@orange, 40%);
+        border-bottom: 1px solid lighten(@orange, 30%);
     }
 }
 

@@ -15,24 +15,65 @@
 {% block content %}
 <div class="row">
     <div class="col-md-12">
-        <h3>Velkommen til Online Dashboard</h3>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="block block-orange">
+                    <div class="block-header">
+                        <h3 class="block-title">
+                            <i class="fa fa-warning blue"></i>
+                            Til oppfølging
+                        </h3>
+                    </div>
+                    <div class="block-content">
+                        Some tasks that need attention
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="block">
+                    <div class="block-header">
+                        <h3 class="block-title">
+                            <i class="fa fa-envelope blue"></i>
+                            Meldinger
+                        </h3>
+                    </div>
+                    <div class="block-content">
+                        Some messages
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 <div class="row">
     <div class="col-md-8">
-        <p>Dashboardet er under kontinuerlig utvikling, og vil få utvidet funksjonalitet etter hvert som modulene blir utviklet.
-        Dersom du har feedback, ønsker om ny funksjonalitet eller opplever feil, fyr av en mail til <a href="mailto:dotkom@online.ntnu.no">dotkom</a>.</p>
-        <p>Vær oppmerksom på at modulene kan være aktive, men kun ha delvis funksjonalitet, slik som listeoversikt, men ikke endring og/eller nyopprettelser.</p>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Generell informasjon</h3>
+            </div>
+            <div class="panel-body">
+                <p>Dashboardet er under kontinuerlig utvikling, og vil få utvidet funksjonalitet etter hvert som modulene blir utviklet.
+                Dersom du har feedback, ønsker om ny funksjonalitet eller opplever feil, fyr av en mail til <a href="mailto:dotkom@online.ntnu.no">dotkom</a>.</p>
+                <p>Vær oppmerksom på at modulene kan være aktive, men kun ha delvis funksjonalitet, slik som listeoversikt, men ikke endring og/eller nyopprettelser.</p>
+            </div>
+        </div>
     </div>
     <div class="col-md-4">
-        <p><b>Nylig aktiverte moduler</b></p>
-        <ul>
-            <li><a href="auth/members/">Medlemsregister</a></li>
-            <li><a href="auth/groups/">Grupper</a></li>
-            <li><a href="approval/">Søknader</a></li>
-            <li><a href="company/">Bedrifter</a></li>
-            <li><a href="inventory/">Varelager</a></li>
-        </ul>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Aktive moduler</h3>
+            </div>
+            <div class="panel-body">
+                <ul>
+                    <li><a href="auth/members/">Medlemsregister</a></li>
+                    <li><a href="auth/groups/">Grupper</a></li>
+                    <li><a href="approval/">Søknader</a></li>
+                    <li><a href="company/">Bedrifter</a></li>
+                    <li><a href="inventory/">Varelager</a></li>
+                    <li><a href="events/">Arrangement</a></li>
+                </ul>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
