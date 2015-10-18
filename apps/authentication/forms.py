@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import datetime
 import re
 
 from django import forms
@@ -8,6 +7,7 @@ from django.contrib import auth
 from django.utils.translation import ugettext as _
 
 from apps.authentication.models import OnlineUser as User, Email
+
 
 class LoginForm(forms.Form):
     username = forms.CharField(widget=forms.TextInput(), label=_("Brukernavn"), max_length=50)
@@ -42,6 +42,7 @@ class LoginForm(forms.Form):
             auth.login(request, self.user)
             return True
         return False
+
 
 class RegisterForm(forms.Form):
     username = forms.CharField(label=_("Brukernavn"), max_length=20, help_text=u'Valgfritt brukernavn. (Konverteres automatisk til små bokstaver.)')
@@ -90,8 +91,22 @@ class RegisterForm(forms.Form):
 
             return cleaned_data 
 
+
+class UserUpdateForm(forms.ModelForm):
+
+    class Meta:
+        model = User
+        fields = (
+            'username', 'nickname', 'first_name', 'last_name',
+            'address', 'zip_code', 'ntnu_username', 'online_mail',
+            'phone_number', 'rfid', 'started_date', 'website', 'bio', 'allergies',
+            'compiled', 'mark_rules', 'infomail', 'jobmail'
+        )
+
+
 class RecoveryForm(forms.Form):
     email = forms.EmailField(label="Email", max_length=50)
+
 
 class ChangePasswordForm(forms.Form):
     new_password = forms.CharField(widget=forms.PasswordInput(render_value=False), label=_(u"Nytt passord"))
