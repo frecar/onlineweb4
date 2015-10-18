@@ -31,6 +31,7 @@ class Issue(models.Model):
     release_date = models.DateField(_(u"utgivelsesdato"))
     description = models.TextField(_(u"beskrivelse"), blank=True, null=True)
     issue = FileBrowseField(_(u"pdf"), directory=IMAGE_FOLDER, max_length=500, extensions=['.pdf'])
+    new_issue = models.FileField(_(u"pdf"), upload_to=IMAGE_FOLDER, max_length=500, blank=True)
 
     def release_date_to_string(self):
         month = {
