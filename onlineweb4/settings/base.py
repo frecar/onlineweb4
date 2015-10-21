@@ -209,7 +209,6 @@ INSTALLED_APPS = (
     'compressor',
     'pdfdocument',
     'watson',
-    'gunicorn',
     'markdown_deux',
     'djangoformsetjs',
     'reversion',
